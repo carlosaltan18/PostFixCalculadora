@@ -1,39 +1,48 @@
 package org.hojatrabajo;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *Class to read de txt
+ * Class to read the txt file with robust error handling.
  */
 public class LectorArchivo {
 
-    private String ruta;
+    private File file;
 
     public LectorArchivo(String ruta) {
-        this.ruta = ruta;
+        this.file = new File(ruta);
     }
 
     /**
-     * reed the lines of the txt.
-     * @return a list of postfix
-     * @throws Exception if the document can not read
+     * Reads lines from the text file safely.
+     * @return a list of postfix expressions
+     * @throws IOException if the file cannot be read
      */
-    public List<String> leerLineas() throws Exception {
-        List<String> postfix = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new FileReader(ruta));
-        String linea;
+    public List<String> leerLineas() throws IOException {
+        if (!file.exists()) {
+            throw new FileNotFoundException("Error: The file was not found at path ");
+        }
 
-        while ((linea = br.readLine()) != null) {
-            if (!linea.trim().isEmpty()) {
-                postfix.add(linea);
+        if (!file.isFile() || !file.canRead()) {
+            throw new IOException("Error: The path exists but is not a valid readable file");
+        }
+
+        List<String> postfix = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                if (!linea.trim().isEmpty()) {
+                    postfix.add(linea.trim());
+                }
             }
         }
 
-        br.close();
+        if (postfix.isEmpty()) {
+            System.out.println("The file is empty :(");
+        }
         return postfix;
     }
 }
-
