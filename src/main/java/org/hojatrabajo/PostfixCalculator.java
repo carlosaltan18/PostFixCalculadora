@@ -9,37 +9,37 @@ import org.hojatrabajo.interfaces.Stack;
  */
 public class PostfixCalculator implements Calc {
 
+    /**
+     * Operate a exprexion in a value of string
+     * @param input
+     * @return double
+     */
     @Override
     public double operate(String input) {
-        Stack<Double> stack = new StackVector<>();
+        Stack<Double> stack = new StackImplemets<>();
 
-        for (int i = 0; i < input.length(); i++) {
-            char character = input.charAt(i);
+        String[] tokens = input.split(" ");
 
-            if (character == ' ') {
+        for (String token : tokens) {
+            if (token.isEmpty()) {
                 continue;
             }
-
-            if (Character.isDigit(character)) {
-                stack.push((double) (character - '0'));
+            if (isNumber(token)) {
+                stack.push(Double.parseDouble(token));
             }
-            else if (isOperator(character)) {
+            else if (token.length() == 1 && isOperator(token.charAt(0))) {
                 try {
-                    if (stack.peek() == null) {
-                        throw new IllegalArgumentException("Insufficient operands :(");
-                    }
                     Double operandB = stack.pop();
-
-                    if (stack.peek() == null) {
-                        throw new IllegalArgumentException("Insufficient operands :(");
-                    }
                     Double operandA = stack.pop();
 
-                    double result = calculate(operandA, operandB, character);
+                    double result = calculate(operandA, operandB, token.charAt(0));
                     stack.push(result);
 
-                } catch (Exception e) {
-                    System.err.println("Error calculating: " + e.getMessage());
+                } catch (ArithmeticException e) {
+                    System.err.println("Error: " + e.getMessage());
+                    return 0.0;
+                } catch (RuntimeException e) {
+                    System.err.println("Error calculating: Insufficient operands :(");
                     return 0.0;
                 }
             }
@@ -49,20 +49,53 @@ public class PostfixCalculator implements Calc {
             }
         }
 
-        Double finalResult = stack.pop();
+        try {
+            Double finalResult = stack.pop();
 
-        if (stack.peek() != null) {
-            System.err.println("Error calculating: Insufficient operators :(");
+            try {
+                stack.pop();
+                System.err.println("Error calculating: Insufficient operators :(");
+                return 0.0;
+            } catch (RuntimeException e) {
+                return finalResult;
+            }
+
+        } catch (RuntimeException e) {
+            System.err.println("Error: Empty expression");
             return 0.0;
         }
-
-        return finalResult;
     }
 
+    /**
+     * mverify if string contains number
+     * @param token
+     * @return true or false
+     */
+    private boolean isNumber(String token) {
+        try {
+            Double.parseDouble(token);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    /**
+     * boolean method to verify if a char is operator
+     * @param c
+     * @return true or false
+     */
     private boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/';
     }
 
+    /**
+     * A methot to calculte is the char is an operator
+     * @param a
+     * @param b
+     * @param operator
+     * @return double
+     */
     private double calculate(double a, double b, char operator) {
         switch (operator) {
             case '+': return a + b;
