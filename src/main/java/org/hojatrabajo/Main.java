@@ -19,7 +19,7 @@ public class Main {
             List<String> expressions = reader.leerLineas();
 
             if (expressions.isEmpty()) {
-                System.out.println("No expressions found to evaluate >:(");
+                System.out.println("No expressions found to evaluate");
                 return;
             }
 
@@ -29,14 +29,13 @@ public class Main {
                 if (result != 0.0) {
                     System.out.println("Infix: " + expression);
                     System.out.println("Result: " + result);
-                    System.out.println("All good :D");
                 }
             }
 
         } catch (FileNotFoundException e) {
-            System.err.println("File not found :'(");
+            System.err.println("File not found ");
         } catch (IOException e) {
-            System.err.println("Input/Output failure :'(");
+            System.err.println("Input/Output failure");
             System.err.println(e.getMessage());
         } catch (Exception e) {
             System.err.println("Unexpected Error: " + e.getMessage());
