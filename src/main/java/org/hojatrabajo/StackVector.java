@@ -1,47 +1,48 @@
 package org.hojatrabajo;
 
 import org.hojatrabajo.interfaces.Stack;
-import java.util.Vector;
 
 /**
- * Stack implementation using a Vector
- * @author Sergio
- * @param <T> generic type of the elements
+ * Stack implementation using an array.
+ * @param <T> type of elements in the stack
+ * @author Sergio & Carlos
  */
 public class StackVector<T> implements Stack<T> {
 
-    private Vector<T> vector;
+    private T[] pila;
+    private int top;
+
+    public StackVector(int capacity) {
+        pila = (T[]) new Object[capacity];
+        top = -1;
+    }
 
     public StackVector() {
-        this.vector = new Vector<>();
+        this(100);
     }
 
     @Override
     public void push(T value) {
-        vector.add(value);
+        ++top;
+        pila[top] = value;
     }
 
     @Override
     public T pop() {
-        if (vector.isEmpty()) {
+        if (top == -1) {
             return null;
         }
-        return vector.remove(vector.size() - 1);
+        T element = pila[top];
+        pila[top] = null;
+        top--;
+        return element;
     }
 
     @Override
     public T peek() {
-        if (vector.isEmpty()) {
+        if (top == -1) {
             return null;
         }
-        return vector.lastElement();
-    }
-
-    public boolean isEmpty() {
-        return vector.isEmpty();
-    }
-
-    public int size() {
-        return vector.size();
+        return pila[top];
     }
 }

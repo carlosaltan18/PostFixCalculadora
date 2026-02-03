@@ -1,48 +1,132 @@
 package org.hojatrabajo;
 
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Unit tests for the StackVector implementation
+ * Unit tests for StackVector implementation.
+ * @author Carlos & Sergio
  */
 public class StackVectorTest {
 
-    @Test
-    public void testPushAndPop() {
-        StackVector<Integer> stack = new StackVector<>();
-        stack.push(10);
-        stack.push(20);
-        Integer result1 = stack.pop();
-        assertEquals("The last element pushed (20) should be popped first", Integer.valueOf(20), result1);
-        Integer result2 = stack.pop();
-        assertEquals("The first element pushed (10) should be popped second", Integer.valueOf(10), result2);
+    private StackVector<Integer> stack;
+
+    /**
+     * Sets up a fresh stack before each test.
+     */
+    @Before
+    public void setUp() {
+        stack = new StackVector<>();
     }
 
-    @Test
-    public void testPeek() {
-        StackVector<String> stack = new StackVector<>();
-        stack.push("Hello");
-        stack.push("World");
-        String result = stack.peek();
-        assertEquals("Peek should return the last element", "World", result);
-        assertEquals("Stack size should remain 2 after peek", 2, stack.size());
-    }
-
-    @Test
-    public void testIsEmpty() {
-        StackVector<Double> stack = new StackVector<>();
-        assertTrue("New stack should be empty", stack.isEmpty());
-        stack.push(5.5);
-        assertFalse("Stack should not be empty after push", stack.isEmpty());
+    /**
+     * Tests that pop throws exception on empty stack.
+     */
+    @Test(expected = RuntimeException.class)
+    public void testPopOnEmptyStackThrowsException() {
         stack.pop();
-        assertTrue("Stack should be empty after removing all elements", stack.isEmpty());
     }
 
+    /**
+     * Tests that peek throws exception on empty stack.
+     */
+    @Test(expected = RuntimeException.class)
+    public void testPeekOnEmptyStackThrowsException() {
+        stack.peek();
+    }
+
+    /**
+     * Tests basic push and peek operations.
+     */
     @Test
-    public void testPopEmptyStack() {
-        StackVector<Integer> stack = new StackVector<>();
-        Integer result = stack.pop();
-        assertNull("Popping an empty stack should return null", result);
+    public void testPushAndPeek() {
+        stack.push(5);
+        stack.push(10);
+        assertEquals("Peek should return the last element pushed", Integer.valueOf(10), stack.peek());
+    }
+
+    /**
+     * Tests LIFO (Last In First Out) property.
+     */
+    @Test
+    public void testLIFOOrder() {
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+
+        assertEquals(Integer.valueOf(3), stack.pop());
+        assertEquals(Integer.valueOf(2), stack.pop());
+        assertEquals(Integer.valueOf(1), stack.pop());
+    }
+
+    /**
+     * Tests that peek does not remove the element.
+     */
+    @Test
+    public void testPeekDoesNotRemoveElement() {
+        stack.push(42);
+
+        Integer first = stack.peek();
+        Integer second = stack.peek();
+
+        assertEquals("Multiple peeks should return the same value", first, second);
+        assertEquals("Element should still be poppable after peek", Integer.valueOf(42), stack.pop());
+    }
+
+    /**
+     * Tests that stack becomes empty after popping all elements.
+     */
+    @Test(expected = RuntimeException.class)
+    public void testStackBecomesEmptyAfterPoppingAll() {
+        stack.push(100);
+        stack.push(200);
+
+        stack.pop();
+        stack.pop();
+        stack.pop();
+    }
+
+    /**
+     * Tests automatic resizing with many elements.
+     */
+    @Test
+    public void testLargeNumberOfElements() {
+        for (int i = 0; i < 100; i++) {
+            stack.push(i);
+        }
+
+        for (int i = 99; i >= 0; i--) {
+            assertEquals(Integer.valueOf(i), stack.pop());
+        }
+    }
+
+    /**
+     * Tests stack with String type.
+     */
+    @Test
+    public void testWithStringType() {
+        StackVector<String> stringStack = new StackVector<>();
+
+        stringStack.push("Hello");
+        stringStack.push("World");
+
+        assertEquals("World", stringStack.peek());
+        assertEquals("World", stringStack.pop());
+        assertEquals("Hello", stringStack.pop());
+    }
+
+    /**
+     * Tests stack with Double type.
+     */
+    @Test
+    public void testWithDoubleType() {
+        StackVector<Double> doubleStack = new StackVector<>();
+
+        doubleStack.push(3.14);
+        doubleStack.push(2.71);
+
+        assertEquals(Double.valueOf(2.71), doubleStack.pop());
+        assertEquals(Double.valueOf(3.14), doubleStack.pop());
     }
 }

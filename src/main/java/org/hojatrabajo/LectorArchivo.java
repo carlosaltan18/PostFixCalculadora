@@ -5,28 +5,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to read the txt file with robust error handling.
+ * Reads postfix expressions from a text file.
+ * @author Sergio & Carlos
  */
 public class LectorArchivo {
 
     private File file;
 
+    /**
+     * Constructs a file reader for the specified path.
+     * @param ruta path to the file
+     */
     public LectorArchivo(String ruta) {
         this.file = new File(ruta);
     }
 
     /**
-     * Reads lines from the text file safely.
-     * @return a list of postfix expressions
-     * @throws IOException if the file cannot be read
+     * Reads all non-empty lines from the file.
+     * @return list of expressions, one per line
+     * @throws IOException if file cannot be read
+     * @throws FileNotFoundException if file does not exist
      */
     public List<String> leerLineas() throws IOException {
         if (!file.exists()) {
-            throw new FileNotFoundException("Error: The file was not found at path ");
+            throw new FileNotFoundException("The file was not found at path: " + file.getAbsolutePath());
         }
 
         if (!file.isFile() || !file.canRead()) {
-            throw new IOException("Error: The path exists but is not a valid readable file");
+            throw new IOException("The path exists but is not a valid readable file");
         }
 
         List<String> postfix = new ArrayList<>();
@@ -41,8 +47,9 @@ public class LectorArchivo {
         }
 
         if (postfix.isEmpty()) {
-            System.out.println("The file is empty :(");
+            System.out.println("Warning: The file is empty");
         }
+
         return postfix;
     }
 }

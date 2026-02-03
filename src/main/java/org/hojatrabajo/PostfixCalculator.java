@@ -4,26 +4,26 @@ import org.hojatrabajo.interfaces.Calc;
 import org.hojatrabajo.interfaces.Stack;
 
 /**
- * Calculator implementation that evaluates Postfix expressions
+ * Evaluates postfix expressions using a stack-based algorithm.
  * @author Sergio
  */
 public class PostfixCalculator implements Calc {
 
     /**
-     * Operate a exprexion in a value of string
-     * @param input
-     * @return double
+     * Evaluates a postfix expression.
+     * @param input postfix expression with space-separated tokens
+     * @return result of evaluation, or 0.0 if error occurs
      */
     @Override
     public double operate(String input) {
-        Stack<Double> stack = new StackImplemets<>();
-
+        Stack<Double> stack = new StackVector<>(100);
         String[] tokens = input.split(" ");
 
         for (String token : tokens) {
             if (token.isEmpty()) {
                 continue;
             }
+
             if (isNumber(token)) {
                 stack.push(Double.parseDouble(token));
             }
@@ -32,13 +32,17 @@ public class PostfixCalculator implements Calc {
                     Double operandB = stack.pop();
                     Double operandA = stack.pop();
 
+                    if (operandA == null || operandB == null) {
+                        System.err.println("Error calculating: Insufficient operands :(");
+                        return 0.0;
+                    }
+
                     double result = calculate(operandA, operandB, token.charAt(0));
                     stack.push(result);
-
                 } catch (ArithmeticException e) {
                     System.err.println("Error: " + e.getMessage());
                     return 0.0;
-                } catch (RuntimeException e) {
+                } catch (Exception e) {
                     System.err.println("Error calculating: Insufficient operands :(");
                     return 0.0;
                 }
@@ -52,24 +56,28 @@ public class PostfixCalculator implements Calc {
         try {
             Double finalResult = stack.pop();
 
-            try {
-                stack.pop();
-                System.err.println("Error calculating: Insufficient operators :(");
+            if (finalResult == null) {
+                System.err.println("Error: Empty expression");
                 return 0.0;
-            } catch (RuntimeException e) {
-                return finalResult;
             }
 
-        } catch (RuntimeException e) {
+            Double remaining = stack.peek();
+            if (remaining != null) {
+                System.err.println("Error calculating: Insufficient operators :(");
+                return 0.0;
+            }
+
+            return finalResult;
+        } catch (Exception e) {
             System.err.println("Error: Empty expression");
             return 0.0;
         }
     }
 
     /**
-     * mverify if string contains number
-     * @param token
-     * @return true or false
+     * Checks if a token is a valid number.
+     * @param token string to check
+     * @return true if token is a number
      */
     private boolean isNumber(String token) {
         try {
@@ -81,20 +89,21 @@ public class PostfixCalculator implements Calc {
     }
 
     /**
-     * boolean method to verify if a char is operator
-     * @param c
-     * @return true or false
+     * Checks if a character is a valid operator.
+     * @param c character to check
+     * @return true if c is +, -, *, or /
      */
     private boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/';
     }
 
     /**
-     * A methot to calculte is the char is an operator
-     * @param a
-     * @param b
-     * @param operator
-     * @return double
+     * Performs arithmetic operation on two operands.
+     * @param a first operand
+     * @param b second operand
+     * @param operator arithmetic operator
+     * @return result of operation
+     * @throws ArithmeticException if division by zero
      */
     private double calculate(double a, double b, char operator) {
         switch (operator) {
@@ -102,7 +111,7 @@ public class PostfixCalculator implements Calc {
             case '-': return a - b;
             case '*': return a * b;
             case '/':
-                if (b == 0) throw new ArithmeticException("Division by zero :/ ");
+                if (b == 0) throw new ArithmeticException("Division by zero");
                 return a / b;
             default: return 0;
         }
